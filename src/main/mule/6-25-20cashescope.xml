@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b396c976-ea5a-4680-bc5c-5033d41ffff0" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<ee:object-store-caching-strategy name="Caching_Strategy" doc:name="Caching Strategy" doc:id="0b85f654-7bf4-43bd-990e-7c56df78efab" keyGenerationExpression="#[vars.cachekey]" />
+	<flow name="6-25-20cashescopeFlow" doc:id="469189e8-d074-49d8-9c80-4fd81eff083d" >
+		<http:listener doc:name="Listener" doc:id="30616dc2-9351-4088-944b-009ca782f807" config-ref="HTTP_Listener_config" path="/Scope"/>
+		<set-variable value="#[attributes.queryParams.id]" doc:name="Set Variable" doc:id="da67db2a-d6eb-42ff-9cb5-4cf6cd3607cc" variableName="cachekey" />
+		<logger level="INFO" doc:name="processing main flow" doc:id="8703c30d-61d1-4a5c-b734-0389c33fbabd" message="processing "/>
+		<ee:cache doc:name="Cache" doc:id="a9bc25b4-a77f-4da3-8d82-ffdc7cf63c6d" cachingStrategy-ref="Caching_Strategy">
+			<flow-ref doc:name="Flow Reference" doc:id="27da0217-37e3-4718-b57b-4c408edcf315" name="6-25-20cashescopeFlow1" />
+		</ee:cache>
+		<logger level="INFO" doc:name="Logger" doc:id="5fd8cc9e-22e7-45f9-b17a-67f829a18121" message="post process"/>
+	</flow>
+	<flow name="6-25-20cashescopeFlow1" doc:id="4172c77f-8a97-4d71-8685-653367b3d176" >
+		<logger level="INFO" doc:name="inside flow2 for calling external system" doc:id="94b81b62-91c9-48c6-a52b-a3c58aabc043" message="inside flow2 for calling external system"/>
+		<ee:transform doc:name="Retrive from db" doc:id="e20e76dd-d014-4ae8-a465-ebc604d52139" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id:100,
+	name: "Seble"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
